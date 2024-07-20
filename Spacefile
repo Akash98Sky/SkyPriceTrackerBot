@@ -1,0 +1,35 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: PriceTrackerBot
+    src: ./
+    engine: python3.9
+    primary: true
+    run: uvicorn main:app --host 0.0.0.0 --port $PORT
+    dev: uvicorn main:app --host 0.0.0.0 --port $PORT --reload
+    actions:
+      - id: "scheduled_price_check"
+        name: "Scheduled Price Check"
+        description: "Checks for any price change"
+        trigger: schedule
+        default_interval: "0 */2 * * *"
+    public_routes:
+      - "/tg_bot"
+    presets:
+      env:
+        - name: BOT_TOKEN
+          description: "Telegram Bot Token"
+        - name: MONGO_URI
+          description: "MongoDB URI"
+        - name: WEBHOOK_SECRET
+          description: "Webhook Secret"
+          default: "RandomString"
+        - name: DATABASE
+          description: "MongoDB Database"
+          default: "PriceTrackerBot"
+        - name: COLLECTION
+          description: "MongoDB Collection"
+          default: "PriceTracker"
+        - name: PRODUCTS
+          description: "MongoDB Collection"
+          default: "PriceTrackerGlobal"

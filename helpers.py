@@ -1,12 +1,14 @@
+import logging
 from pymongo import MongoClient
 import os
 from bson import ObjectId
 
 dbclient = MongoClient(os.getenv("MONGO_URI"))
-database = dbclient[os.getenv("DATABASE")]
-collection = database[os.getenv("COLLECTION")]
-PRODUCTS = database[os.getenv("PRODUCTS")]
+database = dbclient[os.getenv("DATABASE", "PriceTrackerBot")]
+collection = database[os.getenv("COLLECTION", "PriceTracker")]
+PRODUCTS = database[os.getenv("PRODUCTS", "PriceTrackerGlobal")]
 
+logger = logging.getLogger(__name__)
 
 async def fetch_all_products(user_id):
     try:
@@ -15,9 +17,9 @@ async def fetch_all_products(user_id):
 
         global_products = []
         for product in products:
-            global_product = PRODUCTS.find_one({"_id": product.get("product_id")})
-            global_product["product_id"] = product.get("_id")
-            global_products.append(global_product)
+            if global_product := PRODUCTS.find_one({"_id": product.get("product_id")}):
+                global_product["product_id"] = product.get("_id")
+                global_products.append(global_product)
 
         return global_products
 
@@ -28,12 +30,12 @@ async def fetch_all_products(user_id):
 
 async def fetch_one_product(_id):
     try:
-        product = collection.find_one({"_id": ObjectId(_id)})
-        global_product = PRODUCTS.find_one({"_id": product.get("product_id")})
-        return global_product
+        if product := collection.find_one({"_id": ObjectId(_id)}):
+            global_product = PRODUCTS.find_one({"_id": product.get("product_id")})
+            return global_product
 
     except Exception as e:
-        print(f"Error fetching product: {str(e)}")
+        logger.error(f"Error fetching product: {str(e)}")
         return None
 
 
@@ -57,7 +59,7 @@ async def add_new_product(user_id, product_name, product_url, initial_price):
         )
 
         if existing_product:
-            print("Product already exists.")
+            logger.info("Product already exists.")
             return existing_product["_id"]
 
         new_local_product = {
@@ -67,11 +69,11 @@ async def add_new_product(user_id, product_name, product_url, initial_price):
 
         result = collection.insert_one(new_local_product)
 
-        print("Product added successfully.")
+        logger.info("Product added successfully.")
         return result.inserted_id
 
     except Exception as e:
-        print(f"Error adding product: {str(e)}")
+        logger.error(f"Error adding product: {str(e)}", exc_info=True)
         return None
 
 
@@ -100,9 +102,9 @@ async def update_product_price(id, new_price):
                     }
                 },
             )
-            print("Global product prices updated successfully.")
+            logger.info("Global product prices updated successfully.")
     except Exception as e:
-        print(f"Error updating product price: {str(e)}")
+        logger.error(f"Error updating product price: {str(e)}")
 
 
 async def delete_one(_id, user_id):
@@ -116,5 +118,5 @@ async def delete_one(_id, user_id):
             return None
 
     except Exception as e:
-        print(f"Error deleting product: {str(e)}")
+        logger.error(f"Error deleting product: {str(e)}")
         return None
