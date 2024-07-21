@@ -10,8 +10,8 @@ from bot.setup import set_default_commands, set_webhook
 bot = Bot(token=str(BOT_TOKEN), default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2))
 dispatcher = dp
 
-async def init_bot():
-    await set_webhook(bot)
+async def init_bot(drop_pending_updates: bool = False):
+    await set_webhook(bot, drop_pending_updates)
     await set_default_commands(bot)
 
 async def handle_webhook_update(update: types.Update):

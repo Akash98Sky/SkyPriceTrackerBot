@@ -6,7 +6,7 @@ from md2tgmd import escape
 import re
 
 from utils.scraper import scrape
-from helpers import fetch_all_products, add_new_product, fetch_one_product, delete_one
+from bot.helpers import fetch_all_products, add_new_product, fetch_one_product, delete_one
 from utils.regex_patterns import amazon_url_patterns, all_url_patterns
 
 logger = logging.getLogger(__name__)

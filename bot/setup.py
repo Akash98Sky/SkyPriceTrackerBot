@@ -14,5 +14,5 @@ def get_commands_en():
 async def set_default_commands(bot: Bot):
     await bot.set_my_commands(get_commands_en(), scope=types.BotCommandScopeAllPrivateChats(), language_code="en")
 
-async def set_webhook(bot: Bot):
-    await bot.set_webhook(WEBHOOK_URL + WEBHOOK_PATH, secret_token=WEBHOOK_SECRET)
+async def set_webhook(bot: Bot, drop_pending_updates: bool = False):
+    await bot.set_webhook(WEBHOOK_URL + WEBHOOK_PATH, secret_token=WEBHOOK_SECRET, drop_pending_updates=drop_pending_updates)

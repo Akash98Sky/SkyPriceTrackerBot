@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+@app.get('/setup')
+async def setup(drop_pending: bool = False):
+    await init_bot(drop_pending)
+    logger.info("Bot has been initialized...")
+    return Response(status_code=200, content="Bot has been initialized...")
+
 @app.post(WEBHOOK_PATH)
 async def handle_webhook(request: Request):
     secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
@@ -45,13 +51,6 @@ async def handle_actions(action: ActionBody, request: Request):
         return await check_prices(request)
 
     raise HTTPException(status_code=404, detail="Action not found")
-
-async def on_startup():
-    await init_bot()
-    logger.info("Bot has been initialized...")
-
-
-app.add_event_handler("startup", on_startup)
 
 
 if __name__ == "__main__":
