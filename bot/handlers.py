@@ -83,7 +83,7 @@ async def track_flipkart_url(message: Message):
             )
             await status.edit_text(escape(
                 f'Tracking your product "{product_name}"!\n\n'
-                "You can use\n `/product {id}` to get more information about it."
+                f"You can use\n `/product {id}` to get more information about it."
             ))
         else:
             await status.edit_text(escape("Failed to scrape !!!"))
@@ -108,10 +108,10 @@ async def track_product(message: Message):
 
                     products_message = (
                         f"🛍 **Product:** [{product_name}]({product_url})\n\n"
-                        "💲 **Current Price:** {product_price}\n"
-                        "📉 **Lowest Price:** {minimum_price}\n"
-                        "📈 **Highest Price:** {maximum_price}\n"
-                        "\n\n\nTo Stop Tracking, use `/stop {id}`"
+                        f"💲 **Current Price:** {product_price}\n"
+                        f"📉 **Lowest Price:** {minimum_price}\n"
+                        f"📈 **Highest Price:** {maximum_price}\n"
+                        f"\n\n\nTo Stop Tracking, use `/stop {id}`"
                     )
 
                     await status.edit_text(escape(products_message), disable_web_page_preview=True)
