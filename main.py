@@ -9,6 +9,7 @@ from bot import handle_webhook_update, init_bot
 from bot.scheduler import check_prices
 from bot.config import WEBHOOK_SECRET, WEBHOOK_PATH
 from models import ActionBody
+from utils.db import db_client
 
 load_dotenv()
 
@@ -51,6 +52,15 @@ async def handle_actions(action: ActionBody, request: Request):
         return await check_prices(request)
 
     raise HTTPException(status_code=404, detail="Action not found")
+
+async def on_startup():
+    await db_client.connect()
+
+async def on_shutdown():
+    await db_client.disconnect()
+
+app.add_event_handler("startup", on_startup)
+app.add_event_handler("shutdown", on_shutdown)
 
 
 if __name__ == "__main__":

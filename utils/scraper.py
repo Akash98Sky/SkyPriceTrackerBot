@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 from python_flipkart_scraper import ExtractFlipkart
 from python_amazon_scraper import ExtractAmazon
 

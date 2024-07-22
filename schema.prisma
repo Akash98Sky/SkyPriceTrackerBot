@@ -1,0 +1,30 @@
+datasource db {
+    // could be postgresql or mysql
+    provider = "mongodb"
+    url      = env("MONGO_URI")
+}
+
+generator db {
+    provider             = "prisma-client-py"
+    interface            = "asyncio"
+    recursive_type_depth = 5
+}
+
+model Product {
+    id             String         @id @default(auto()) @map("_id") @db.ObjectId
+    product_name   String
+    url            String
+    price          Float
+    upper          Float
+    lower          Float
+    previous_price Float
+    updated_at     DateTime       @default(now())
+    price_trackers PriceTracker[]
+}
+
+model PriceTracker {
+    id         String  @id @default(auto()) @map("_id") @db.ObjectId
+    user_id    BigInt
+    product_id String  @db.ObjectId
+    product    Product @relation(fields: [product_id], references: [id])
+}

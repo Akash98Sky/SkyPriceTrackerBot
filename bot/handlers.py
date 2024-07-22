@@ -1,12 +1,12 @@
 import logging
-from aiogram import Bot, Dispatcher, F
+from aiogram import Dispatcher, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from md2tgmd import escape
 import re
 
 from utils.scraper import scrape
-from bot.helpers import fetch_all_products, add_new_product, fetch_one_product, delete_one
+from utils.db import get_tracker, track_by_user, add_tracker, delete_tracker
 from utils.regex_patterns import amazon_url_patterns, all_url_patterns
 
 logger = logging.getLogger(__name__)
@@ -49,19 +49,21 @@ async def track(message: Message):
     try:
         chat_id = message.chat.id
         text = await message.reply(escape("Fetching Your Products..."))
-        products = await fetch_all_products(chat_id)
-        if products:
+        trackers = await track_by_user(chat_id)
+        if trackers:
             products_message = "Your Tracked Products:\n\n"
+            products = [tracker.product for tracker in trackers]
 
             for i, product in enumerate(products, start=1):
-                _id = product.get("product_id")
-                product_name = product.get("product_name")
-                product_url = product.get("url")
-                product_price = product.get("price")
+                if product:
+                    _id = product.id
+                    product_name = product.product_name
+                    product_url = product.url
+                    product_price = product.price
 
-                products_message += f"🏷️ **Product {i}**: [{product_name}]({product_url})\n\n"
-                products_message += f"💰 **Current Price**: {product_price}\n"
-                products_message += f"❌ Use `/stop {_id}` to Stop tracking\n\n"
+                    products_message += f"🏷️ **Product {i}**: [{product_name}]({product_url})\n\n"
+                    products_message += f"💰 **Current Price**: {product_price}\n"
+                    products_message += f"❌ Use `/stop {_id}` to Stop tracking\n\n"
 
             await text.edit_text(escape(products_message), disable_web_page_preview=True)
         else:
@@ -76,15 +78,16 @@ async def track_flipkart_url(message: Message):
         url = message.text or ""
         platform = "amazon" if any(re.match(pattern, url) for pattern in amazon_url_patterns) else "flipkart"
         product_name, price = await scrape(url, platform)
-        status = await message.reply(escape("Adding Your Product... Please Wait!!"))
-        if product_name and price:
-            id = await add_new_product(
-                message.chat.id, product_name, message.text, price
+        status = await message.reply(escape(f"Adding Your Product from {platform.capitalize()}... Please Wait!!"))
+        if product_name and price and message.text:
+            tracker = await add_tracker(
+                message.chat.id, product_name, message.text, float(price)
             )
-            await status.edit_text(escape(
-                f'Tracking your product "{product_name}"!\n\n'
-                f"You can use\n `/product {id}` to get more information about it."
-            ))
+            if tracker:
+                await status.edit_text(escape(
+                    f'Tracking your product "{product_name}"!\n\n'
+                    f"You can use\n `/product {tracker.id}` to get more information about it."
+                ))
         else:
             await status.edit_text(escape("Failed to scrape !!!"))
     except Exception as e:
@@ -98,13 +101,13 @@ async def track_product(message: Message):
             __, id = message.text.split()
             status = await message.reply(escape("Getting Product Info...."))
             if id:
-                product = await fetch_one_product(id)
+                product = await get_tracker(id)
                 if product:
-                    product_name = product.get("product_name")
-                    product_url = product.get("url")
-                    product_price = product.get("price")
-                    maximum_price = product.get("upper")
-                    minimum_price = product.get("lower")
+                    product_name = product.product_name
+                    product_url = product.url
+                    product_price = product.price
+                    maximum_price = product.upper
+                    minimum_price = product.lower
 
                     products_message = (
                         f"🛍 **Product:** [{product_name}]({product_url})\n\n"
@@ -131,7 +134,7 @@ async def delete_product(message: Message):
             status = await message.reply(escape("Deleting Product...."))
             chat_id = message.chat.id
             if id:
-                is_deleted = await delete_one(id, chat_id)
+                is_deleted = await delete_tracker(id, chat_id)
                 if is_deleted:
                     await status.edit_text("Product Deleted from Your Tracking List")
                 else:

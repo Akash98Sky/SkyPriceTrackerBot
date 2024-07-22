@@ -5,6 +5,8 @@ micros:
     src: ./
     engine: python3.9
     primary: true
+    commands:
+      - prisma generate
     run: uvicorn main:app --host 0.0.0.0 --port $PORT
     dev: uvicorn main:app --host 0.0.0.0 --port $PORT --reload
     actions:
@@ -24,12 +26,3 @@ micros:
         - name: WEBHOOK_SECRET
           description: "Webhook Secret"
           default: "RandomString"
-        - name: DATABASE
-          description: "MongoDB Database"
-          default: "PriceTrackerBot"
-        - name: COLLECTION
-          description: "MongoDB Collection"
-          default: "PriceTracker"
-        - name: PRODUCTS
-          description: "MongoDB Collection"
-          default: "PriceTrackerGlobal"
