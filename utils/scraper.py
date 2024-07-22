@@ -1,21 +1,21 @@
 import logging
-from python_flipkart_scraper import ExtractFlipkart
-from python_amazon_scraper import ExtractAmazon
+
+from utils.scrapers.flipkart import ExtractFlipkart
+from utils.scrapers.amazon import ExtractAmazon
 
 logger = logging.getLogger(__name__)
 
 async def scrape(url: str, platform: str):
     try:
         if platform == "flipkart":
-            product = ExtractFlipkart(url)
+            async with ExtractFlipkart(url) as product:
+                return product.get_title(), product.get_price()
         elif platform == "amazon":
-            product = ExtractAmazon(url)
+            async with ExtractAmazon(url) as product:
+                return product.get_title(), product.get_price()
         else:
             raise ValueError("Unsupported platform")
 
-        price = str(product.get_price())
-        product_name = str(product.get_title())
-        return product_name, price
     except Exception as e:
         logger.error(e, exc_info=True)
         return None, None

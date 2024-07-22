@@ -6,6 +6,7 @@ micros:
     engine: python3.9
     primary: true
     commands:
+      - python3.9 -m pip install prisma
       - prisma generate
     run: uvicorn main:app --host 0.0.0.0 --port $PORT
     dev: uvicorn main:app --host 0.0.0.0 --port $PORT --reload

@@ -12,7 +12,7 @@ from models import ActionBody
 from utils.db import connect, disconnect
 
 load_dotenv()
-
+logging.basicConfig(level=logging.INFO)
 
 WEB_SERVER_HOST = os.getenv("HOST", "0.0.0.0")
 WEB_SERVER_PORT = os.getenv("PORT", "8080")

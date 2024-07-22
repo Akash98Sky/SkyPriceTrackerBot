@@ -13,14 +13,14 @@ DETA_APP = True if os.getenv("DETA_SPACE_APP", True) else False
 logger = logging.getLogger(__name__)
 timezone = pytz.timezone("Asia/Kolkata")
 
-prisma_db = Prisma()
-deta_db = Deta()
-
-price_trackers = prisma_db.pricetracker
-products = prisma_db.product
-
-price_trackers_base = deta_db.AsyncBase("price_trackers")
-products_base = deta_db.AsyncBase("products")
+if DETA_APP:
+    deta_db = Deta()
+    price_trackers_base = deta_db.AsyncBase("price_trackers")
+    products_base = deta_db.AsyncBase("products")
+else:
+    prisma_db = Prisma()
+    price_trackers = prisma_db.pricetracker
+    products = prisma_db.product
 
 
 async def connect():
