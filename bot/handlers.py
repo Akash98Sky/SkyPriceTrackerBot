@@ -52,11 +52,10 @@ async def track(message: Message):
         trackers = await track_by_user(chat_id)
         if trackers:
             products_message = "Your Tracked Products:\n\n"
-            products = [tracker.product for tracker in trackers]
 
-            for i, product in enumerate(products, start=1):
-                if product:
-                    _id = product.id
+            for i, tracker in enumerate(trackers, start=1):
+                if product := tracker.product:
+                    _id = tracker.id
                     product_name = product.product_name
                     product_url = product.url
                     product_price = product.price
@@ -101,8 +100,8 @@ async def track_product(message: Message):
             __, id = message.text.split()
             status = await message.reply(escape("Getting Product Info...."))
             if id:
-                product = await get_tracker(id)
-                if product:
+                tracker = await get_tracker(id)
+                if tracker and (product := tracker.product):
                     product_name = product.product_name
                     product_url = product.url
                     product_price = product.price

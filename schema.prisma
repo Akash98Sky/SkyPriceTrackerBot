@@ -18,7 +18,7 @@ model Product {
     upper          Float
     lower          Float
     previous_price Float
-    updated_at     DateTime       @default(now())
+    updated_at     DateTime       @updatedAt
     price_trackers PriceTracker[]
 }
 
