@@ -27,14 +27,8 @@ class FlipkartPage:
     
     # Function to extract Product Title
     def get_title(self):
-        try:
-            title = self.soup.select_one("h1>span")
-            title = title.text if title else ''
-            title_string = re.sub("   +", " ", title)
-
-        except AttributeError:
-            title_string = ""	
-        return title_string
+        title = self.soup.select_one("h1>span")
+        return re.sub("   +", " ", title.text) if title else None
 
     # Function to extract Product Price
     def get_price(self):
@@ -43,8 +37,9 @@ class FlipkartPage:
         
         if not price:
             price = self.soup.select_one('#container>div>div:nth-child(3)>div:nth-child(1)>div:nth-child(2)>div:nth-child(2)>div>div:nth-child(4)>div>div>div:nth-child(1)')
-            price = price.text.strip() if price else ''
-        return price.replace('₹', '').replace(',', '')
+            price = price.text.strip() if price else None
+        
+        return price.replace('₹', '').replace(',', '') if price else None
 
     # Function to extract Product Rating
     def get_rating(self):

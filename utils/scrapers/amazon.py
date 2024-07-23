@@ -24,32 +24,23 @@ class AmazonPage:
 
     # Function to extract Product Title
     def get_title(self):
-        try:
-            title = self.soup.select_one("div[id='titleSection'] > h1[id='title'] > span[id='productTitle']")
-            title_string = title.text.strip() if title else ''
-
-        except AttributeError as e:
-            title_string = ""	
-            
-        return title_string
+        title = self.soup.select_one("div[id='titleSection'] > h1[id='title'] > span[id='productTitle']")
+        return title.text.strip() if title else None
 
     # Function to extract Product Price
     def get_price(self):
-        try:
-            price = self.soup.select_one("span[id='priceblock_ourprice']")
-            if price:
-                price = price.text.strip()
-            else:
-                raise AttributeError()
-
-        except AttributeError as e:
+        price = self.soup.select_one("span[id='priceblock_ourprice']")
+        if price:
+            price = price.text.strip()
+        else:
             price_tag = self.soup.select_one("div[id='corePriceDisplay_desktop_feature_div'] span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole")
-            price = price_tag.text if price_tag else None
-            if not price:
+            if price_tag:
+                price = price_tag.text.strip()
+            else:
                 price_table = self.soup.select_one("div[id='corePrice_desktop']>div>table>span.a-offscreen")
-                price = price_table.text if price_table else ''
+                price = price_table.text if price_table else None
 
-        return price.strip().replace(',','').replace('₹', '')
+        return price.strip().replace(',','').replace('₹', '') if price else None
 
     # Function to extract Product Rating
     def get_rating(self):

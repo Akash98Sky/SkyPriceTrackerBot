@@ -9,12 +9,18 @@ logger = logging.getLogger(__name__)
 
 async def scrape(url: str, platform: str):
     try:
+        title, price = None, None
         if platform == "flipkart":
             async with ExtractFlipkart(url) as product:
-                return product.get_title(), product.get_price()
+                title = product.get_title()
+                price = product.get_price()
         elif platform == "amazon":
             async with ExtractAmazon(url) as product:
-                return product.get_title(), product.get_price()
+                title = product.get_title()
+                price = product.get_price()
+
+        if title and price:
+            return title, price
         else:
             async with ExtractGeneric(url) as product:
                 return product.get_title(), product.get_price()
