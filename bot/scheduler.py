@@ -6,7 +6,7 @@ from utils.scraper import scrape
 from fastapi import Request, Response
 
 from bot import bot
-from utils.regex_patterns import amazon_url_patterns
+from utils.regex_patterns import amazon_url_patterns, flipkart_url_patterns
 from utils.db import all_products, update_product_price, track_by_product, Product
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,12 @@ async def check_prices(_: Request):
 
     logger.info("Checking Price for Products...")
     for product in await all_products():
-        platform = "amazon" if any(re.match(pattern, product.url) for pattern in amazon_url_patterns) else "flipkart"
+        if any(re.match(pattern, product.url) for pattern in amazon_url_patterns):
+            platform = "amazon"
+        elif any(re.match(pattern, product.url) for pattern in flipkart_url_patterns):
+            platform = "flipkart"
+        else:
+            platform = "generic"
         __, current_price = await scrape(product.url, platform)
         await asyncio.sleep(1)
         if current_price is not None:

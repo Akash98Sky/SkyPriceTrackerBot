@@ -1,4 +1,4 @@
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from bs4 import BeautifulSoup as bs
 
 REQUEST_HEADER = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:112.0) Gecko/20100101 Firefox/112.0" }
@@ -9,7 +9,7 @@ class ExtractAmazon:
         self.url = url
 
     async def __aenter__(self):
-        async with ClientSession(headers=REQUEST_HEADER, cookies=REQUEST_COOKIES) as session:
+        async with ClientSession(headers=REQUEST_HEADER, cookies=REQUEST_COOKIES, timeout=ClientTimeout(4)) as session:
             async with session.get(self.url, allow_redirects=True) as req:
                 page = await req.text()
                 soup = bs(page, "lxml")

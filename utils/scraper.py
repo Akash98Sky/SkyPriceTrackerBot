@@ -1,7 +1,9 @@
 import logging
+from asyncio import TimeoutError
 
 from utils.scrapers.flipkart import ExtractFlipkart
 from utils.scrapers.amazon import ExtractAmazon
+from utils.scrapers.generic import ExtractGeneric
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +16,12 @@ async def scrape(url: str, platform: str):
             async with ExtractAmazon(url) as product:
                 return product.get_title(), product.get_price()
         else:
-            raise ValueError("Unsupported platform")
+            async with ExtractGeneric(url) as product:
+                return product.get_title(), product.get_price()
 
+    except TimeoutError:
+        async with ExtractGeneric(url) as product:
+            return product.get_title(), product.get_price()
     except Exception as e:
         logger.error(e, exc_info=True)
         return None, None

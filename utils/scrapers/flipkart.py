@@ -1,5 +1,5 @@
 import re
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from bs4 import BeautifulSoup as bs
 
 headers = {
@@ -12,7 +12,7 @@ class ExtractFlipkart:
         self.url = url
 
     async def __aenter__(self):
-        async with ClientSession(headers=headers) as session:
+        async with ClientSession(headers=headers, timeout=ClientTimeout(4)) as session:
             async with session.get(self.url, allow_redirects=True) as req:
                 page = await req.text()
                 soup = bs(page, "lxml")

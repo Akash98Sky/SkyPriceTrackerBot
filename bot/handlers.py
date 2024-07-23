@@ -7,7 +7,7 @@ import re
 
 from utils.scraper import scrape
 from utils.db import get_tracker, track_by_user, add_tracker, delete_tracker
-from utils.regex_patterns import amazon_url_patterns, all_url_patterns
+from utils.regex_patterns import amazon_url_patterns, flipkart_url_patterns, all_url_patterns
 
 logger = logging.getLogger(__name__)
 dp = Dispatcher()
@@ -75,7 +75,12 @@ async def track(message: Message):
 async def track_flipkart_url(message: Message):
     try:
         url = message.text or ""
-        platform = "amazon" if any(re.match(pattern, url) for pattern in amazon_url_patterns) else "flipkart"
+        if any(re.match(pattern, url) for pattern in amazon_url_patterns):
+            platform = "amazon"
+        elif any(re.match(pattern, url) for pattern in flipkart_url_patterns):
+            platform = "flipkart"
+        else:
+            platform = "generic"
         product_name, price = await scrape(url, platform)
         status = await message.reply(escape(f"Adding Your Product from {platform.capitalize()}... Please Wait!!"))
         if product_name and price and message.text:
