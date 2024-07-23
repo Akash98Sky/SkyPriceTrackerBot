@@ -15,7 +15,7 @@ class ExtractGeneric:
                 data = await res.json()
 
             if data and data["status"]:
-                async with session.get(f"https://pricehistory.app/p/{data["code"]}", allow_redirects=True) as req:
+                async with session.get("https://pricehistory.app/p/" + str(data["code"]), allow_redirects=True) as req:
                     page = await req.text()
                     soup = bs(page, "lxml")
                     return CommonPage(soup)
