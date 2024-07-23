@@ -9,7 +9,7 @@ from deta import Deta
 from datetime import datetime
 import pytz
 
-DETA_APP = True if os.getenv("DETA_SPACE_APP", True) else False
+DETA_APP = True if os.getenv("DETA_SPACE_APP", False) else False
 logger = logging.getLogger(__name__)
 timezone = pytz.timezone("Asia/Kolkata")
 
