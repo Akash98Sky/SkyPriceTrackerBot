@@ -1,6 +1,11 @@
 # Use the official Python base image
 FROM python:3.12-alpine
 
+# Install git
+RUN apk update && \
+    apk upgrade && \
+    apk add git libgcc libstdc++
+
 # Set the working directory in the container
 WORKDIR /app
 
@@ -20,4 +25,4 @@ RUN prisma generate
 EXPOSE 8000
 
 # Define the command to run when the container starts
-CMD ["uvicorn", "main:app", "--port", "$PORT", "--host", "0.0.0.0"]
+CMD ["uvicorn", "main:app", "--port", "8000", "--host", "0.0.0.0"]
